@@ -29,10 +29,12 @@ public class GameConfigs : ScriptableObject
     public float BorderLineStep = 0.25f;
     [TitleGroup("PIXEL AREA/Border", alignment: TitleAlignments.Centered)]
     public float BorderThickness = 0.3f;
-    
+
     [FoldoutGroup("BALL AREA", Expanded = false)]
     [TitleGroup("BALL AREA/General", alignment: TitleAlignments.Centered)]
     public int[] BallCapacityInOrder = { 10, 20 };
+    [TitleGroup("BALL AREA/General", alignment: TitleAlignments.Centered)]
+    public int BallChunkSize = 50;
     [TitleGroup("BALL AREA/Lane", alignment: TitleAlignments.Centered)]
     public int BallLaneMinCount = 3;
     [TitleGroup("BALL AREA/Lane", alignment: TitleAlignments.Centered)]
@@ -43,5 +45,6 @@ public class GameConfigs : ScriptableObject
     public float BallLaneYDistance = 1f;
     [TitleGroup("BALL AREA/Link", alignment: TitleAlignments.Centered)]
     public float BallLinkChance = 0.15f;
-
+    [TitleGroup("BALL AREA/Link", alignment: TitleAlignments.Centered)]
+    public int BallMaxLinkDistance = 2;
 }

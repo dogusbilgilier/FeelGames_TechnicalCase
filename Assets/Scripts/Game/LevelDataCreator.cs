@@ -43,13 +43,13 @@ public class BigBallData
 {
     public int colorID;
     public int capacity;
-    public int connectedGroupId;
+    public int linkID;
 
-    public BigBallData(int colorID, int capacity, int connectedGroupId = -1)
+    public BigBallData(int colorID, int capacity, int linkID = -1)
     {
         this.colorID = colorID;
         this.capacity = capacity;
-        this.connectedGroupId = connectedGroupId;
+        this.linkID = linkID;
     }
 }
 

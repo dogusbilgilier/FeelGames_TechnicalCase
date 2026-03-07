@@ -23,10 +23,13 @@ public class PixelArtAreaController : MonoBehaviour
 
     private void CreateHoleObject(Vector3 position)
     {
-        var hole = Instantiate(_holeObjectPrefab, transform);
-        hole.transform.position = position-Vector3.forward*0.75f;
         float holeScale = GameConfigs.Instance.HoleRadius;
+        Vector3 holeOffset = Vector3.forward * 0.85f;
+
+        HoleObject hole = Instantiate(_holeObjectPrefab, transform);
+        hole.transform.position = position - holeOffset;
         hole.transform.localScale = new Vector3(holeScale, 0.2f, holeScale);
+
         MinZPosition = hole.transform.position.z - holeScale;
     }
 
@@ -76,7 +79,7 @@ public class PixelArtAreaController : MonoBehaviour
         float halfWidth = width * 0.5f;
         float halfHeight = height * 0.5f;
         int arcSegments = GameConfigs.Instance.BorderArcSegments;
-        float holeRadius = GameConfigs.Instance.HoleRadius;
+        float holeRadius = GameConfigs.Instance.HoleRadius * 0.75f;
 
         float radius = Mathf.Clamp(GameConfigs.Instance.BorderCornerRadius, 0f, Mathf.Min(halfWidth, halfHeight));
 

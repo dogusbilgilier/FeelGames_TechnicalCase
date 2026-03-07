@@ -18,10 +18,12 @@ MonoBehaviour:
   BorderCornerRadius: 0.5
   BorderArcSegments: 15
   BorderLineStep: 0.6
-  BorderThickness: 0.25
+  BorderThickness: 0.15
   BallCapacityInOrder: 0a00000014000000
+  BallChunkSize: 50
   BallLaneMinCount: 3
   BallLaneMaxCount: 5
   BallLaneXDistance: 1.5
   BallLaneYDistance: 1.3
   BallLinkChance: 0.15
+  BallMaxLinkDistance: 5

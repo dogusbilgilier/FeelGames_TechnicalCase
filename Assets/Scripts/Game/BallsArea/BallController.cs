@@ -7,10 +7,7 @@ public class BallController : MonoBehaviour
     [Title("Ball Area References")]
     [SerializeField] private BigBall _bigBallPrefab;
     [SerializeField] private Transform _bigBallParent;
-
-    [Title("Settings")]
-    [SerializeField, Min(1)] private int _chunkSize = 50;
-
+    [SerializeField] private LinkObject _linkObjectPrefab;
     public bool IsInitialized { get; private set; }
 
     private readonly List<int> _colorIdInOrder = new List<int>();
@@ -26,11 +23,33 @@ public class BallController : MonoBehaviour
         _bigBallDataList.Clear();
 
         CreateOrderedColorIdList(levelData);
-        CreateBigBallDataInChunks(_chunkSize);
+        CreateBigBallDataInChunks(GameConfigs.Instance.BallChunkSize);
         //LogBigBallDataList();
-
+        
         _ballLaneController = new BallLaneController(_bigBallDataList, _bigBallPrefab, _bigBallParent, startZPosition);
+        CreateLinks();
+        
         IsInitialized = true;
+    }
+
+    private void CreateLinks()
+    {
+        var balls = _ballLaneController.AllBigBalls;
+        foreach (BigBall bigBall1 in balls)
+        {
+            if (bigBall1.Data.linkID == -1)
+                continue;
+
+            int linkId = bigBall1.Data.linkID;
+            foreach (var bigBall2 in balls)
+            {
+                if (bigBall2.Data.linkID == linkId && bigBall2 != bigBall1)
+                {
+                    var link = Instantiate(_linkObjectPrefab, transform);
+                    link.SetLink(bigBall1, bigBall2);
+                }
+            }
+        }
     }
 
     #region Ordered Color ID Creation
