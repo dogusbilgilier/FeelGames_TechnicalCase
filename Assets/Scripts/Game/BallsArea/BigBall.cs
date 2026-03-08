@@ -14,13 +14,13 @@ public class BigBall : MonoBehaviour
 
     private BigBallData _bigBallData;
     public BigBallData Data => _bigBallData;
-
-    private MaterialPropertyBlock _materialPropertyBlock;
-    private MaterialPropertyBlock MaterialPropertyBlock => _materialPropertyBlock ??= new MaterialPropertyBlock();
     public bool IsNext { get; private set; }
     public int LaneIndex { get; private set; }
     public event Action<BigBall> OnJumpRequested;
-    
+    public int LaneRowIndex { get; private set; }
+
+    private MaterialPropertyBlock _materialPropertyBlock;
+    private MaterialPropertyBlock MaterialPropertyBlock => _materialPropertyBlock ??= new MaterialPropertyBlock();
     private LinkObject _linkObject;
 
     public void Initialize(BigBallData bigBallData, int laneIndex)
@@ -82,6 +82,11 @@ public class BigBall : MonoBehaviour
     public void OnDropStart()
     {
         _collider.enabled = false;
-        _capacityText.transform.DOScale(0f, 0.5f).SetEase(Ease.Linear);
+        _capacityText.transform.DOScale(0f, 0.5f).SetEase(Ease.Linear).SetLink(_capacityText.gameObject);
+    }
+
+    public void SetIndexInLane(int index)
+    {
+        LaneRowIndex = index;
     }
 }

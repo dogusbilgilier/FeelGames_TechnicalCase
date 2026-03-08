@@ -1,8 +1,13 @@
+using System;
 using System.Collections.Generic;
+using DG.Tweening;
 using Dreamteck.Splines;
 using Sirenix.OdinInspector;
+using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UI;
+using Random = UnityEngine.Random;
 
 public class PixelArtAreaController : MonoBehaviour
 {
@@ -11,15 +16,29 @@ public class PixelArtAreaController : MonoBehaviour
     [SerializeField] private Transform _pixelPieceParent;
     [SerializeField] private SplineComputer _borderSpline;
     [SerializeField] private HoleObject _holeObjectPrefab;
+    [SerializeField] private Canvas _canvas;
+    [SerializeField] private Image _fillImage;
+    [SerializeField] private TextMeshProUGUI _ballCountText;
 
+    public readonly List<PixelPiece> AllPixels = new List<PixelPiece>();
     private HoleObject _holeObject;
     public float MinZPosition { get; private set; }
+    private float _ballStartZPosition;
+    private int _clearedPixels = 0;
+
     public bool IsInitialized { get; private set; }
+    public event Action OnAllPixelsCleared;
 
     public void Initialize(LevelData levelData)
     {
         CreatePixelArt(levelData);
+        UpdateFillArea(0);
         IsInitialized = true;
+    }
+
+    private void OnDestroy()
+    {
+        OnAllPixelsCleared = null;
     }
 
     private void CreateHoleObject(Vector3 position)
@@ -30,7 +49,9 @@ public class PixelArtAreaController : MonoBehaviour
         _holeObject = Instantiate(_holeObjectPrefab, transform);
         _holeObject.transform.position = position - holeOffset;
         _holeObject.transform.localScale = new Vector3(holeScale, 0.2f, holeScale);
-
+        _holeObject.Initialize();
+        _holeObject.OnBallCreated += HoleObject_OnBallCreated;
+        _holeObject.OnBallReleased += HoleObject_OnBallReleased;
         MinZPosition = _holeObject.transform.position.z - holeScale;
     }
 
@@ -61,14 +82,25 @@ public class PixelArtAreaController : MonoBehaviour
                 piece.transform.localScale = Vector3.one * size;
                 piece.transform.localPosition = pos + (Vector3.up * size * 0.5f);
                 piece.Initialize(pieceData);
+                piece.OnPixelPieceCleared += Piece_OnPixelPieceCleared;
+                AllPixels.Add(piece);
             }
         }
-
 
         float totalWidth = (width * size) + GameConfigs.Instance.BorderOffset;
         float totalHeight = (height * size) + GameConfigs.Instance.BorderOffset;
         Vector3 center = transform.position;
         CreateBorderSpline(totalWidth, totalHeight, center);
+    }
+
+
+    private void Piece_OnPixelPieceCleared(PixelPiece piece)
+    {
+        _clearedPixels++;
+        if (_clearedPixels >= AllPixels.Count)
+        {
+            OnAllPixelsCleared?.Invoke();
+        }
     }
 
     private void CreateBorderSpline(float width, float height, Vector3 center)
@@ -146,12 +178,18 @@ public class PixelArtAreaController : MonoBehaviour
         SplineMesh splineMesh = spline.GetComponent<SplineMesh>();
         splineMesh.RebuildImmediate();
 
-
         //CREATE COLLIDER
         GameObject fillerCollider = new GameObject("FillerCollider");
-        BoxCollider collider = fillerCollider.AddComponent<BoxCollider>();
+        fillerCollider.transform.SetParent(spline.transform);
+        fillerCollider.layer = LayerMask.NameToLayer("Wall");
+        fillerCollider.AddComponent<BoxCollider>();
         fillerCollider.transform.position = center - (Vector3.forward * halfHeight) + Vector3.up * GameConfigs.Instance.BorderThickness;
         fillerCollider.transform.localScale = new Vector3(GameConfigs.Instance.HoleRadius, GameConfigs.Instance.BorderThickness * 2, GameConfigs.Instance.BorderThickness * 2);
+        _ballStartZPosition = center.z - halfHeight + GameConfigs.Instance.BorderThickness + 0.5f;
+
+        //BORDER COLLIDER
+        MeshCollider meshCollider = splineMesh.AddComponent<MeshCollider>();
+        meshCollider.sharedMesh = splineMesh.GetComponent<MeshFilter>().sharedMesh;
 
 
         // CREATE HOLE OBJECT
@@ -194,5 +232,37 @@ public class PixelArtAreaController : MonoBehaviour
     public void OnBigBallJumpToHole(BigBall bigBall)
     {
         _holeObject.OnBallJump(bigBall);
+    }
+
+    private void HoleObject_OnBallCreated(Ball ball, int activeBallCount)
+    {
+        UpdateFillArea(activeBallCount);
+
+        Vector3 ballJumpPosition = new Vector3(Random.Range(-1f, 1f), 0f, _ballStartZPosition);
+        Vector3 startDirection = (ballJumpPosition - ball.transform.position).normalized;
+        float distance = Vector3.Distance(ball.transform.position, ballJumpPosition);
+        float duration = distance / GameConfigs.Instance.SmallBallSpeed;
+        
+        startDirection.y = 0;
+        ball.BallStartDirection(startDirection);
+
+        ball.transform.DOScale(GameConfigs.Instance.PixelSize * GameConfigs.Instance.SmallBallScaleMultiplier, duration*0.5f).SetEase(Ease.Linear).SetLink(ball.gameObject);
+        ball.transform.DOJump(ballJumpPosition, 1, 1, duration)
+            .SetSpeedBased(true)
+            .SetEase(Ease.Linear)
+            .SetLink(ball.gameObject)
+            .OnComplete(ball.StartMove);
+    }
+
+    private void HoleObject_OnBallReleased(Ball ball, int activeBallCount)
+    {
+        UpdateFillArea(activeBallCount);
+    }
+
+    private void UpdateFillArea(int activeBallCount)
+    {
+        float percent = (float)activeBallCount / GameConfigs.Instance.MaxBallCountInPixelArea;
+        _fillImage.fillAmount = percent;
+        _ballCountText.SetText($"{activeBallCount} / {GameConfigs.Instance.MaxBallCountInPixelArea}");
     }
 }

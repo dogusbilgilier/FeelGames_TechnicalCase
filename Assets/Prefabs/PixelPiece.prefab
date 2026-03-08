@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 2318555525235760587}
   - component: {fileID: 6547954700729479129}
   - component: {fileID: 6183132047640597529}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: PixelPiece
   m_TagString: Untagged
   m_Icon: {fileID: 0}

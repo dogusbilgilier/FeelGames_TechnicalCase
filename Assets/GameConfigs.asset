@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 11585dce337b731468904186d9a0996e, type: 3}
   m_Name: GameConfigs
   m_EditorClassIdentifier: Assembly-CSharp::GameConfigs
+  MaxBallCountInPixelArea: 50
   PixelSize: 0.25
   HoleRadius: 2
   BorderOffset: 2.5
@@ -25,5 +26,9 @@ MonoBehaviour:
   BallLaneMaxCount: 5
   BallLaneXDistance: 1.5
   BallLaneYDistance: 1.3
-  BallLinkChance: 0.3
+  BallLinkChance: 0.2
   BallMaxLinkDistance: 10
+  SmallBallSpeed: 10
+  SmallBallScaleMultiplier: 1.1
+  BigBallToHoleJumpDuration: 0.2
+  BigLinkedBallToHoleDelay: 0.1

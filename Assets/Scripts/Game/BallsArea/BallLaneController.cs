@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using DG.Tweening;
 using UnityEngine;
 using Object = UnityEngine.Object;
 using Random = UnityEngine.Random;
@@ -16,6 +17,7 @@ public class BallLaneController : IDisposable
     public int TotalLaneCount { get; private set; }
 
     public event Action<BigBall> OnBigBallJumpToHole;
+    public bool IsCompleted => CheckIsAllLanesCompleted();
 
     public BallLaneController(List<BigBallData> bigBallDataList, BigBall bigBallPrefab, Transform bigBallParent, float startZPosition)
     {
@@ -29,6 +31,74 @@ public class BallLaneController : IDisposable
     public void Dispose()
     {
         OnBigBallJumpToHole = null;
+    }
+
+    public bool CheckIsAllLanesCompleted()
+    {
+        foreach (BallLane lane in _ballLanes)
+        {
+            if (!lane.IsCompleted)
+                return false;
+        }
+        return true;
+    }
+
+    private BigBall CreateBall(BigBallData bigBallData, int laneIndex)
+    {
+        BigBall ball = Object.Instantiate(_bigBallPrefab, _bigBallParent);
+        ball.Initialize(bigBallData, laneIndex);
+        ball.OnJumpRequested += BigBall_OnJumpRequested;
+        return ball;
+    }
+
+    private void BigBall_OnJumpRequested(BigBall bigBall)
+    {
+        if (CheckCanBigBallJump(bigBall, out BigBall linkedBigBall))
+        {
+            if (linkedBigBall != null)
+            {
+                DOVirtual.DelayedCall(GameConfigs.Instance.BigLinkedBallToHoleDelay, () => { OnBigBallJump(linkedBigBall); });
+                linkedBigBall.BreakLink();
+            }
+
+            OnBigBallJump(bigBall);
+        }
+    }
+
+    private void OnBigBallJump(BigBall bigBall)
+    {
+        bigBall.OnDropStart();
+        OnBigBallJumpToHole?.Invoke(bigBall);
+        _ballLanes[bigBall.LaneIndex].BallLeaveTheLane();
+    }
+
+    private bool CheckCanBigBallJump(BigBall bigBall, out BigBall linkedBigBall)
+    {
+        linkedBigBall = null;
+        
+        if (bigBall.Data.linkID == -1)
+            return true;
+        
+        foreach (BigBall otherBall in _allBigBalls)
+        {
+            if (bigBall == otherBall)
+                continue;
+
+            if (bigBall.Data.linkID == otherBall.Data.linkID)
+            {
+                linkedBigBall = otherBall;
+                if (otherBall.LaneIndex == bigBall.LaneIndex)
+                    return true;
+
+                return otherBall.CanJumpToHole();
+            }
+            
+        }
+
+        if (linkedBigBall == null)
+            return true;
+
+        return false;
     }
 
     private void CreateLanesAndLinks()
@@ -60,64 +130,12 @@ public class BallLaneController : IDisposable
         }
     }
 
-    private BigBall CreateBall(BigBallData bigBallData, int laneIndex)
-    {
-        BigBall ball = Object.Instantiate(_bigBallPrefab, _bigBallParent);
-        ball.Initialize(bigBallData, laneIndex);
-        ball.OnJumpRequested += BigBall_OnOnJumpRequested;
-        return ball;
-    }
-
-    private void BigBall_OnOnJumpRequested(BigBall bigBall)
-    {
-        if (CheckCanBigBallJump(bigBall, out BigBall linkedBigBall))
-        {
-            if (linkedBigBall != null)
-            {
-                OnBigBallJump(linkedBigBall);
-                linkedBigBall.BreakLink();
-            }
-
-            OnBigBallJump(bigBall);
-        }
-    }
-
-    private void OnBigBallJump(BigBall bigBall)
-    {
-        bigBall.OnDropStart();
-        OnBigBallJumpToHole?.Invoke(bigBall);
-        _ballLanes[bigBall.LaneIndex].BallLeaveTheLane();
-    }
-
-    private bool CheckCanBigBallJump(BigBall bigBall, out BigBall linkedBigBall)
-    {
-        linkedBigBall = null;
-        if (bigBall.Data.linkID == -1)
-            return true;
-
-        foreach (BigBall otherBall in _allBigBalls)
-        {
-            if (bigBall == otherBall)
-                continue;
-
-            if (bigBall.Data.linkID == otherBall.Data.linkID)
-            {
-                linkedBigBall = otherBall;
-                if (otherBall.LaneIndex == bigBall.LaneIndex)
-                    return true;
-                
-                return otherBall.CanJumpToHole();
-            }
-        }
-
-        return false;
-    }
-
     private void TryCreateLinkData(int i, BigBallData bigBallData)
     {
         float linkChance = GameConfigs.Instance.BallLinkChance;
         int maxLinkDistance = GameConfigs.Instance.BallMaxLinkDistance;
         int distance = Random.Range(1, maxLinkDistance + 1);
+
 
         if (Random.Range(0f, 1f) > linkChance)
             return;
@@ -139,6 +157,8 @@ public class BallLaneController : IDisposable
         if (otherBallData.linkID != -1 || otherBallData.linkID == i)
             return false;
 
+        if (bigBallData == otherBallData)
+            return false;
         //Lane Check---
         int firstBallLaneIndex = i % TotalLaneCount;
         int secondLaneLaneIndex = (i + distance) % TotalLaneCount;

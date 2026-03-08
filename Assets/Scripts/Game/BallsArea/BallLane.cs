@@ -10,7 +10,7 @@ public class BallLane
     public int RemainingBallCount => TotalBallCount - 1 - _currentIndex;
     private int _laneIndex;
     public bool IsInitialized { get; private set; }
-
+    public bool IsCompleted {  get; private set; }
     private float _startZPosition;
 
     public BallLane(int laneIndex)
@@ -26,7 +26,13 @@ public class BallLane
         _xPosition = xPosition;
         _balls[_currentIndex].SetAsNext();
         _startZPosition = startZPosition;
-        ArrangeLane();
+        for (var i = 0; i < _balls.Count; i++)
+        {
+            var ball = _balls[i];
+            ball.SetIndexInLane(i);
+        }
+
+        ArrangeLane(true);
         IsInitialized = true;
     }
 
@@ -40,22 +46,12 @@ public class BallLane
         _balls.Add(ball);
     }
 
-    public bool TryGetCurrentBall(out BigBall ball)
-    {
-        ball = null;
-
-        if (RemainingBallCount > 0)
-            ball = _balls[_currentIndex];
-
-        return ball != null;
-    }
-
     public void BallLeaveTheLane()
     {
         _currentIndex++;
         if (_currentIndex >= TotalBallCount)
         {
-            //LaneCompleted
+            IsCompleted = true;
         }
         else
         {
@@ -64,7 +60,7 @@ public class BallLane
         }
     }
 
-    private void ArrangeLane()
+    private void ArrangeLane(bool instant = false)
     {
         float distanceBetween = GameConfigs.Instance.BallLaneYDistance;
 
@@ -73,7 +69,11 @@ public class BallLane
         {
             BigBall bigBall = _balls[i];
             float zPos = index * distanceBetween;
-            bigBall.transform.DOMove(new Vector3(_xPosition, 0, _startZPosition - zPos), 0.5f);
+            Vector3 ballPos = new Vector3(_xPosition, 0, _startZPosition - zPos);
+            if (instant)
+                bigBall.transform.position = ballPos;
+            else
+                bigBall.transform.DOMove(ballPos, 0.5f);
             index++;
         }
     }

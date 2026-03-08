@@ -17,6 +17,7 @@ public class BallController : MonoBehaviour
     private readonly List<BigBallData> _bigBallDataList = new List<BigBallData>();
     private BallLaneController _ballLaneController;
 
+    public bool IsCompleted => _ballLaneController.IsCompleted;
     public event Action<BigBall> OnBigBallJumpToHole;
 
     public void Initialize(LevelData levelData, float startZPosition)
@@ -49,11 +50,13 @@ public class BallController : MonoBehaviour
 
     private void CreateLinks()
     {
-        var balls = _ballLaneController.AllBigBalls;
+        List<BigBall> balls = _ballLaneController.AllBigBalls;
         List<int> idList = ListPool<int>.Get();
+
         foreach (BigBall bigBall1 in balls)
         {
             int linkId = bigBall1.Data.linkID;
+
             if (linkId == -1 || idList.Contains(linkId))
                 continue;
 

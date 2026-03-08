@@ -12,7 +12,12 @@ public class GameConfigs : ScriptableObject
         Debug.Assert(s_Instance == null, "GameConfigs Instance already exist");
         s_Instance = this;
     }
-
+    
+    [Button(ButtonSizes.Gigantic, ButtonStyle.FoldoutButton)]
+    [FoldoutGroup("GENERAL", Expanded = false)]
+    [TitleGroup("GENERAL/Settings", alignment: TitleAlignments.Centered)]
+    public int MaxBallCountInPixelArea = 50;
+    
     [Button(ButtonSizes.Gigantic, ButtonStyle.FoldoutButton)]
     [FoldoutGroup("PIXEL AREA", Expanded = false)]
     [TitleGroup("PIXEL AREA/Settings", alignment: TitleAlignments.Centered)]
@@ -47,4 +52,26 @@ public class GameConfigs : ScriptableObject
     public float BallLinkChance = 0.15f;
     [TitleGroup("BALL AREA/Link", alignment: TitleAlignments.Centered)]
     public int BallMaxLinkDistance = 2;
+
+    [FoldoutGroup("SMALL BALL", Expanded = false)]
+    [TitleGroup("SMALL BALL/General", alignment: TitleAlignments.Centered)]
+    public float SmallBallSpeed = 10;
+    [TitleGroup("SMALL BALL/General", alignment: TitleAlignments.Centered)]
+    public float SmallBallScaleMultiplier = 0.75f;
+
+    [FoldoutGroup("TWEENS", Expanded = false)]
+    [TitleGroup("TWEENS/BigBallToHole", alignment: TitleAlignments.Centered)]
+    public float BigBallToHoleJumpDuration = 0.2f;
+    [TitleGroup("TWEENS/BigBallToHole", alignment: TitleAlignments.Centered)]
+    public float BigLinkedBallToHoleDelay = 0.1f;
+   
+    [FoldoutGroup("BALL BOUNCE", Expanded = false)]
+    [TitleGroup("BALL BOUNCE/Settings", alignment: TitleAlignments.Centered)]
+    public float Skin = 0.005f;
+    [TitleGroup("BALL BOUNCE/Settings", alignment: TitleAlignments.Centered)]
+    public int MaxHitsPerFrame = 6;
+    [TitleGroup("BALL BOUNCE/Settings", alignment: TitleAlignments.Centered)]
+    public float RetargetInterval = 0.25f; 
+    [TitleGroup("BALL BOUNCE/Settings", alignment: TitleAlignments.Centered)]
+    public float PostBounceMaxDeg = 12f; 
 }

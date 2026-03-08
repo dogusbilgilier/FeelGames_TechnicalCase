@@ -107,6 +107,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HoleObject
   _ballJumpTransform: {fileID: 3220969369084660337}
   _ballDropTransform: {fileID: 6126771040436466908}
+  _ballPrefab: {fileID: -2739532870963996897, guid: 387793426d434a243a264d767396ae9b, type: 3}
 --- !u!1 &1245512783603027068
 GameObject:
   m_ObjectHideFlags: 0
