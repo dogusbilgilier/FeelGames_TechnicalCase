@@ -826,7 +826,24 @@ PlayerSettings:
   webWasm2023: 0
   webEnableSubmoduleStrippingCompatibility: 0
   scriptingDefineSymbols:
-    Standalone: ODIN_INSPECTOR;ODIN_INSPECTOR_3;ODIN_INSPECTOR_3_1;ODIN_INSPECTOR_3_2;ODIN_INSPECTOR_3_3;DREAMTECK_SPLINES
+    Android: DOTWEEN;DOTWEEN_NOAUDIO
+    EmbeddedLinux: DOTWEEN;DOTWEEN_NOAUDIO
+    GameCoreScarlett: DOTWEEN;DOTWEEN_NOAUDIO
+    GameCoreXboxOne: DOTWEEN;DOTWEEN_NOAUDIO
+    Kepler: DOTWEEN;DOTWEEN_NOAUDIO
+    LinuxHeadlessSimulation: DOTWEEN;DOTWEEN_NOAUDIO
+    Nintendo Switch: DOTWEEN;DOTWEEN_NOAUDIO
+    Nintendo Switch 2: DOTWEEN;DOTWEEN_NOAUDIO
+    PS4: DOTWEEN;DOTWEEN_NOAUDIO
+    PS5: DOTWEEN;DOTWEEN_NOAUDIO
+    QNX: DOTWEEN;DOTWEEN_NOAUDIO
+    Standalone: ODIN_INSPECTOR;ODIN_INSPECTOR_3;ODIN_INSPECTOR_3_1;ODIN_INSPECTOR_3_2;ODIN_INSPECTOR_3_3;DREAMTECK_SPLINES;DOTWEEN;DOTWEEN_NOAUDIO
+    VisionOS: DOTWEEN;DOTWEEN_NOAUDIO
+    WebGL: DOTWEEN;DOTWEEN_NOAUDIO
+    Windows Store Apps: DOTWEEN;DOTWEEN_NOAUDIO
+    XboxOne: DOTWEEN;DOTWEEN_NOAUDIO
+    iPhone: DOTWEEN;DOTWEEN_NOAUDIO
+    tvOS: DOTWEEN;DOTWEEN_NOAUDIO
   additionalCompilerArguments: {}
   platformArchitecture: {}
   scriptingBackend:
@@ -923,7 +940,7 @@ PlayerSettings:
   qnxGraphicConfPath: 
   apiCompatibilityLevel: 6
   captureStartupLogs: {}
-  activeInputHandler: 1
+  activeInputHandler: 2
   windowsGamepadBackendHint: 0
   cloudProjectId: 2e9143d1-457f-41b5-ac1a-58f878f16def
   framebufferDepthMemorylessMode: 0

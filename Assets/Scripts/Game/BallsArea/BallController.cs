@@ -1,6 +1,9 @@
+using System;
 using System.Collections.Generic;
 using Sirenix.OdinInspector;
 using UnityEngine;
+using UnityEngine.Pool;
+using Random = UnityEngine.Random;
 
 public class BallController : MonoBehaviour
 {
@@ -13,43 +16,62 @@ public class BallController : MonoBehaviour
     private readonly List<int> _colorIdInOrder = new List<int>();
     private readonly List<BigBallData> _bigBallDataList = new List<BigBallData>();
     private BallLaneController _ballLaneController;
-    private float _startZPosition;
+
+    public event Action<BigBall> OnBigBallJumpToHole;
 
     public void Initialize(LevelData levelData, float startZPosition)
     {
         IsInitialized = false;
-        _startZPosition = startZPosition;
+
         _colorIdInOrder.Clear();
         _bigBallDataList.Clear();
 
         CreateOrderedColorIdList(levelData);
         CreateBigBallDataInChunks(GameConfigs.Instance.BallChunkSize);
         //LogBigBallDataList();
-        
+
         _ballLaneController = new BallLaneController(_bigBallDataList, _bigBallPrefab, _bigBallParent, startZPosition);
+        _ballLaneController.OnBigBallJumpToHole += BallLaneController_OnBigBallJumpToHole;
         CreateLinks();
-        
+
         IsInitialized = true;
+    }
+
+    private void OnDestroy()
+    {
+        OnBigBallJumpToHole = null;
+    }
+
+    private void BallLaneController_OnBigBallJumpToHole(BigBall bigBall)
+    {
+        OnBigBallJumpToHole?.Invoke(bigBall);
     }
 
     private void CreateLinks()
     {
         var balls = _ballLaneController.AllBigBalls;
+        List<int> idList = ListPool<int>.Get();
         foreach (BigBall bigBall1 in balls)
         {
-            if (bigBall1.Data.linkID == -1)
+            int linkId = bigBall1.Data.linkID;
+            if (linkId == -1 || idList.Contains(linkId))
                 continue;
 
-            int linkId = bigBall1.Data.linkID;
             foreach (var bigBall2 in balls)
             {
                 if (bigBall2.Data.linkID == linkId && bigBall2 != bigBall1)
                 {
                     var link = Instantiate(_linkObjectPrefab, transform);
                     link.SetLink(bigBall1, bigBall2);
+                    bigBall1.SetLinkObject(link);
+                    bigBall2.SetLinkObject(link);
+                    idList.Add(linkId);
                 }
             }
         }
+
+        idList.Clear();
+        ListPool<int>.Release(idList);
     }
 
     #region Ordered Color ID Creation
@@ -190,7 +212,7 @@ public class BallController : MonoBehaviour
         if (availableCapacities.Count == 0)
             return -1;
 
-        int randomIndex = UnityEngine.Random.Range(0, availableCapacities.Count);
+        int randomIndex = Random.Range(0, availableCapacities.Count);
         return availableCapacities[randomIndex];
     }
 

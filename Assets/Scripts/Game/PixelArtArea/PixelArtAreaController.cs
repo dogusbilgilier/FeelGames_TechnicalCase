@@ -12,6 +12,7 @@ public class PixelArtAreaController : MonoBehaviour
     [SerializeField] private SplineComputer _borderSpline;
     [SerializeField] private HoleObject _holeObjectPrefab;
 
+    private HoleObject _holeObject;
     public float MinZPosition { get; private set; }
     public bool IsInitialized { get; private set; }
 
@@ -26,11 +27,11 @@ public class PixelArtAreaController : MonoBehaviour
         float holeScale = GameConfigs.Instance.HoleRadius;
         Vector3 holeOffset = Vector3.forward * 0.85f;
 
-        HoleObject hole = Instantiate(_holeObjectPrefab, transform);
-        hole.transform.position = position - holeOffset;
-        hole.transform.localScale = new Vector3(holeScale, 0.2f, holeScale);
+        _holeObject = Instantiate(_holeObjectPrefab, transform);
+        _holeObject.transform.position = position - holeOffset;
+        _holeObject.transform.localScale = new Vector3(holeScale, 0.2f, holeScale);
 
-        MinZPosition = hole.transform.position.z - holeScale;
+        MinZPosition = _holeObject.transform.position.z - holeScale;
     }
 
     private void CreatePixelArt(LevelData levelData)
@@ -55,13 +56,11 @@ public class PixelArtAreaController : MonoBehaviour
                 if (pieceData == null)
                     continue;
 
-                Color pixelColor = pieceData.color;
                 Vector3 pos = new Vector3(x, size * 0.5f, y) * size - centerOffset;
-
                 PixelPiece piece = Instantiate(_pixelPiecePrefab, _pixelPieceParent);
                 piece.transform.localScale = Vector3.one * size;
-                piece.transform.localPosition = pos;
-                piece.SetData(pieceData, pixelColor);
+                piece.transform.localPosition = pos + (Vector3.up * size * 0.5f);
+                piece.Initialize(pieceData);
             }
         }
 
@@ -144,7 +143,16 @@ public class PixelArtAreaController : MonoBehaviour
         spline.SetPoints(splinePoints);
 
         spline.RebuildImmediate();
-        spline.GetComponent<SplineMesh>().RebuildImmediate();
+        SplineMesh splineMesh = spline.GetComponent<SplineMesh>();
+        splineMesh.RebuildImmediate();
+
+
+        //CREATE COLLIDER
+        GameObject fillerCollider = new GameObject("FillerCollider");
+        BoxCollider collider = fillerCollider.AddComponent<BoxCollider>();
+        fillerCollider.transform.position = center - (Vector3.forward * halfHeight) + Vector3.up * GameConfigs.Instance.BorderThickness;
+        fillerCollider.transform.localScale = new Vector3(GameConfigs.Instance.HoleRadius, GameConfigs.Instance.BorderThickness * 2, GameConfigs.Instance.BorderThickness * 2);
+
 
         // CREATE HOLE OBJECT
         CreateHoleObject(Vector3.forward * (center.z - halfHeight));
@@ -181,5 +189,10 @@ public class PixelArtAreaController : MonoBehaviour
             Vector3 p = new Vector3(center.x + x, center.y, center.z + z);
             points.Add(p);
         }
+    }
+
+    public void OnBigBallJumpToHole(BigBall bigBall)
+    {
+        _holeObject.OnBallJump(bigBall);
     }
 }

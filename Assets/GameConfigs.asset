@@ -25,5 +25,5 @@ MonoBehaviour:
   BallLaneMaxCount: 5
   BallLaneXDistance: 1.5
   BallLaneYDistance: 1.3
-  BallLinkChance: 0.15
-  BallMaxLinkDistance: 5
+  BallLinkChance: 0.3
+  BallMaxLinkDistance: 10

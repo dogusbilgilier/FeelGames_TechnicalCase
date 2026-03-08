@@ -19,6 +19,12 @@ public class GameplayController : MonoBehaviour
 
         _pixelArtAreaController.Initialize(levelData);
         _ballController.Initialize(levelData, _pixelArtAreaController.MinZPosition);
+        _ballController.OnBigBallJumpToHole += BallController_OnBigBallJumpToHole;
         IsInitialized = true;
+    }
+
+    private void BallController_OnBigBallJumpToHole(BigBall bigBall)
+    {
+        _pixelArtAreaController.OnBigBallJumpToHole(bigBall);
     }
 }

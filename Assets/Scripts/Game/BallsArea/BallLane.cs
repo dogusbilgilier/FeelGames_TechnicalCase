@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using DG.Tweening;
 using UnityEngine;
 
 public class BallLane
@@ -52,18 +53,28 @@ public class BallLane
     public void BallLeaveTheLane()
     {
         _currentIndex++;
-        ArrangeLane();
+        if (_currentIndex >= TotalBallCount)
+        {
+            //LaneCompleted
+        }
+        else
+        {
+            _balls[_currentIndex].SetAsNext();
+            ArrangeLane();
+        }
     }
 
     private void ArrangeLane()
     {
         float distanceBetween = GameConfigs.Instance.BallLaneYDistance;
 
+        int index = 0;
         for (var i = _currentIndex; i < _balls.Count; i++)
         {
             BigBall bigBall = _balls[i];
-            float zPos = i * distanceBetween;
-            bigBall.transform.position = new Vector3(_xPosition, 0, _startZPosition - zPos);
+            float zPos = index * distanceBetween;
+            bigBall.transform.DOMove(new Vector3(_xPosition, 0, _startZPosition - zPos), 0.5f);
+            index++;
         }
     }
 }

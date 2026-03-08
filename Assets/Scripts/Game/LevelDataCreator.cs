@@ -45,7 +45,7 @@ public class BigBallData
     public int capacity;
     public int linkID;
 
-    public BigBallData(int colorID, int capacity, int linkID = -1)
+    public BigBallData(int colorID, int capacity,  int linkID = -1)
     {
         this.colorID = colorID;
         this.capacity = capacity;

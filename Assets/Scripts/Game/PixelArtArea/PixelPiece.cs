@@ -17,12 +17,6 @@ public class PixelPiece : MonoBehaviour
         IsInitialized = true;
     }
 
-    public void SetData(PixelPieceData data, Color? color = null)
-    {
-        Data = data;
-        UpdateVisuals();
-    }
-
     private void UpdateVisuals()
     {
         Color color = GameManager.Instance.GameplayController.LevelColorsInOrder[Data.colorID];
