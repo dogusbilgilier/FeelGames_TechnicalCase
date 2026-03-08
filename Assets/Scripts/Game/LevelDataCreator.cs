@@ -53,10 +53,6 @@ public class BigBallData
     }
 }
 
-public class QueueLaneData
-{
-    public List<BigBallData> balls = new();
-}
 
 public class PixelPieceData
 {
